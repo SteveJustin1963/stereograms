@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""
+ASCII Stereogram Generator — Numbers Edition
+Hidden text: any printable ASCII.
+Background texture: digits 0–9 only.
+"""
+
+import random
+
+# ─── 5×7 Bitmap Font (full printable ASCII) ────────────────────────────────────
+FONT = {
+    ' ': ["00000","00000","00000","00000","00000","00000","00000"],
+    'A': ["01110","10001","10001","11111","10001","10001","10001"],
+    'B': ["11110","10001","10001","11110","10001","10001","11110"],
+    'C': ["01110","10001","10000","10000","10000","10001","01110"],
+    'D': ["11110","10001","10001","10001","10001","10001","11110"],
+    'E': ["11111","10000","10000","11110","10000","10000","11111"],
+    'F': ["11111","10000","10000","11110","10000","10000","10000"],
+    'G': ["01110","10001","10000","10011","10001","10001","01110"],
+    'H': ["10001","10001","10001","11111","10001","10001","10001"],
+    'I': ["01110","00100","00100","00100","00100","00100","01110"],
+    'J': ["00111","00010","00010","00010","00010","10010","01100"],
+    'K': ["10001","10010","10100","11000","10100","10010","10001"],
+    'L': ["10000","10000","10000","10000","10000","10000","11111"],
+    'M': ["10001","11011","10101","10001","10001","10001","10001"],
+    'N': ["10001","11001","10101","10011","10001","10001","10001"],
+    'O': ["01110","10001","10001","10001","10001","10001","01110"],
+    'P': ["11110","10001","10001","11110","10000","10000","10000"],
+    'Q': ["01110","10001","10001","10001","10101","10010","01101"],
+    'R': ["11110","10001","10001","11110","10100","10010","10001"],
+    'S': ["01110","10001","10000","01110","00001","10001","01110"],
+    'T': ["11111","00100","00100","00100","00100","00100","00100"],
+    'U': ["10001","10001","10001","10001","10001","10001","01110"],
+    'V': ["10001","10001","10001","10001","10001","01010","00100"],
+    'W': ["10001","10001","10001","10001","10101","11011","10001"],
+    'X': ["10001","10001","01010","00100","01010","10001","10001"],
+    'Y': ["10001","10001","01010","00100","00100","00100","00100"],
+    'Z': ["11111","00001","00010","00100","01000","10000","11111"],
+    '0': ["01110","10001","10011","10101","11001","10001","01110"],
+    '1': ["00100","01100","00100","00100","00100","00100","01110"],
+    '2': ["01110","10001","00001","00010","00100","01000","11111"],
+    '3': ["11110","00001","00001","01110","00001","00001","11110"],
+    '4': ["00010","00110","01010","10010","11111","00010","00010"],
+    '5': ["11111","10000","10000","11110","00001","00001","11110"],
+    '6': ["01110","10000","10000","11110","10001","10001","01110"],
+    '7': ["11111","00001","00010","00100","01000","01000","01000"],
+    '8': ["01110","10001","10001","01110","10001","10001","01110"],
+    '9': ["01110","10001","10001","01111","00001","00001","01110"],
+    '!': ["00100","00100","00100","00100","00100","00000","00100"],
+    '?': ["01110","10001","00001","00010","00100","00000","00100"],
+    '.': ["00000","00000","00000","00000","00000","00110","00110"],
+    ',': ["00000","00000","00000","00000","00110","00100","01000"],
+    '-': ["00000","00000","00000","11111","00000","00000","00000"],
+    '+': ["00000","00100","00100","11111","00100","00100","00000"],
+    '=': ["00000","00000","11111","00000","11111","00000","00000"],
+    '(': ["00010","00100","01000","01000","01000","00100","00010"],
+    ')': ["01000","00100","00010","00010","00010","00100","01000"],
+    '*': ["00000","10101","01110","11111","01110","10101","00000"],
+    '#': ["01010","01010","11111","01010","11111","01010","01010"],
+    '@': ["01110","10001","10101","10111","10100","10001","01110"],
+    '"': ["01010","01010","00000","00000","00000","00000","00000"],
+    "'": ["00100","00100","00000","00000","00000","00000","00000"],
+    '/': ["00001","00001","00010","00100","01000","10000","10000"],
+    '\\':["10000","10000","01000","00100","00010","00001","00001"],
+    '[': ["01110","01000","01000","01000","01000","01000","01110"],
+    ']': ["01110","00010","00010","00010","00010","00010","01110"],
+    '{': ["00110","01000","01000","11000","01000","01000","00110"],
+    '}': ["11000","00100","00100","00110","00100","00100","11000"],
+    '_': ["00000","00000","00000","00000","00000","00000","11111"],
+    '`': ["01000","00100","00000","00000","00000","00000","00000"],
+    '~': ["00000","00000","01101","10010","00000","00000","00000"],
+    '<': ["00001","00010","00100","01000","00100","00010","00001"],
+    '>': ["10000","01000","00100","00010","00100","01000","10000"],
+    ';': ["00000","00110","00110","00000","00110","00100","01000"],
+    ':': ["00000","00110","00110","00000","00110","00110","00000"],
+    '|': ["00100","00100","00100","00100","00100","00100","00100"],
+    '^': ["00100","01010","10001","00000","00000","00000","00000"],
+    '%': ["11001","11010","00100","01000","01011","10011","00000"],
+    '$': ["00100","01111","10100","01110","00101","11110","00100"],
+    '&': ["01100","10010","10100","01100","10101","10010","01101"],
+}
+
+# Background texture: digits only
+TEXTURE = "0123456789"
+
+
+def render_to_depthmap(text, width, height):
+    """Render digit string into a binary depth map."""
+    chars = [c for c in text if c in FONT]
+    if not chars:
+        print("  (no supported characters, using HELLO)")
+        chars = list("HELLO")
+
+    GLYPH_W, GLYPH_H, GAP = 5, 7, 1
+    n = len(chars)
+    text_base_w = n * GLYPH_W + (n - 1) * GAP
+
+    available_w = width - 4
+    available_h = height - 4
+
+    scale_w = available_w // text_base_w if text_base_w > 0 else 1
+    scale_h = available_h // GLYPH_H
+    scale = max(1, min(scale_w, scale_h))
+
+    glyph_w = GLYPH_W * scale
+    glyph_h = GLYPH_H * scale
+    gap_w   = GAP * scale
+
+    text_pixel_w = n * glyph_w + (n - 1) * gap_w
+    start_x = (width  - text_pixel_w) // 2
+    start_y = (height - glyph_h)      // 2
+
+    depth = [[0] * width for _ in range(height)]
+
+    for ci, ch in enumerate(chars):
+        glyph  = FONT[ch]
+        char_x = start_x + ci * (glyph_w + gap_w)
+        for row_i, row_str in enumerate(glyph):
+            for col_i, bit in enumerate(row_str):
+                if bit == '1':
+                    for sy in range(scale):
+                        for sx in range(scale):
+                            px = char_x + col_i * scale + sx
+                            py = start_y + row_i * scale + sy
+                            if 0 <= px < width and 0 <= py < height:
+                                depth[py][px] = 1
+    return depth
+
+
+def generate_stereogram(depth_map, width, height):
+    """Generate digit-only stereogram rows."""
+    period    = max(8, width // 6)
+    max_shift = max(1, period // 6)
+
+    lines = []
+    for y in range(height):
+        row = [''] * width
+
+        for x in range(period):
+            row[x] = random.choice(TEXTURE)
+
+        for x in range(period, width):
+            shift = depth_map[y][x] * max_shift
+            src   = max(0, x - period + shift)
+            row[x] = row[src]
+
+        lines.append(''.join(row))
+
+    return lines, period, max_shift
+
+
+def ask_int(prompt, default, lo, hi):
+    while True:
+        raw = input(f"{prompt} [{default}]: ").strip()
+        if raw == "":
+            return default
+        try:
+            val = int(raw)
+            if lo <= val <= hi:
+                return val
+            print(f"  Enter a number between {lo} and {hi}.")
+        except ValueError:
+            print("  Please enter a whole number.")
+
+
+def viewing_instructions():
+    print("""
+HOW TO VIEW:
+  Parallel — text floats IN FRONT of the screen
+    • Relax eyes as if staring far behind the screen
+    • The digit noise will "click" and your number pops out in 3D
+
+  Cross-eyed — text sinks behind the surface
+    • Cross your eyes very slightly and hold it
+    • Give it 10–30 seconds
+""")
+
+
+def main():
+    print("╔══════════════════════════════════════════╗")
+    print("║   ASCII STEREOGRAM — NUMBERS EDITION     ║")
+    print("║   Type anything — hidden in digit noise! ║")
+    print("╚══════════════════════════════════════════╝")
+    print("  Texture: 0123456789 only   Input: any printable ASCII")
+    print()
+
+    width  = ask_int("Grid width  (columns)", 80, 20, 200)
+    height = ask_int("Grid height (rows)",    40, 10, 200)
+    print()
+
+    while True:
+        try:
+            text = input("Enter text (or 'q' to quit): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nGoodbye!")
+            return
+
+        if not text:
+            continue
+        if text.lower() in ("q", "quit", "exit"):
+            print("Goodbye!")
+            return
+
+        filtered = ''.join(c.upper() if c.upper() in FONT else c for c in text)
+        filtered = ''.join(c for c in filtered if c in FONT)
+        if not filtered:
+            print("  No supported characters found.")
+            continue
+        if filtered != text.upper():
+            print(f"  (rendering: {filtered!r})")
+
+        depth_map = render_to_depthmap(filtered, width, height)
+        lines, period, shift = generate_stereogram(depth_map, width, height)
+
+        print(f"\n  {width}×{height} | period={period} | depth-shift={shift} | input={filtered!r}\n")
+        print("┌" + "─" * width + "┐")
+        for line in lines:
+            print("│" + line + "│")
+        print("└" + "─" * width + "┘")
+        viewing_instructions()
+
+
+if __name__ == "__main__":
+    main()
