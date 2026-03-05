@@ -204,16 +204,13 @@ def main():
 
     while True:
         try:
-            text = input("Enter text (or 'q' to quit): ").strip()
+            text = input("Enter text (or Ctrl-C to quit): ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye!")
             return
 
         if not text:
             continue
-        if text.lower() in ("q", "quit", "exit"):
-            print("Goodbye!")
-            return
 
         depth_map = render_text_to_depthmap(text, width, height)
         lines, period, shift = generate_stereogram(depth_map, width, height)

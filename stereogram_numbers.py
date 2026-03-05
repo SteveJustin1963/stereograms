@@ -190,16 +190,13 @@ def main():
 
     while True:
         try:
-            text = input("Enter text (or 'q' to quit): ").strip()
+            text = input("Enter text (or Ctrl-C to quit): ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye!")
             return
 
         if not text:
             continue
-        if text.lower() in ("q", "quit", "exit"):
-            print("Goodbye!")
-            return
 
         filtered = ''.join(c.upper() if c.upper() in FONT else c for c in text)
         filtered = ''.join(c for c in filtered if c in FONT)
